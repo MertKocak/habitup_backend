@@ -36,7 +36,7 @@ app.post("/habit", async (req, res) => {
     }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("habit/:id", async (req, res) => {
     const habitId = req.params.id;
     const { habitTitle, habitDesc, habitDay } = req.body;
   
