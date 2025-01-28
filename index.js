@@ -15,12 +15,7 @@ mongoose.connect(mongoUrl)
 require("./Habits");
 const Habit = mongoose.model("HabitInfo")
 
-app.get('/habit/:id', async (req, res) => {
-    const habitId = req.params._id;
-  
-    // ObjectId'ye dönüştürme
-    const objectId = ObjectId(habitId);
-  
+app.get('/habit', async (req, res) => {   
     try {
       const habit = await Habit.findById(objectId);
       if (!habit) {
