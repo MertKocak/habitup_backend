@@ -36,36 +36,30 @@ app.post("/habit", async (req, res) => {
     }
 });
 
-// PUT /habit/:id - Habit Güncelleme
-app.put("/habit", async (req, res) => {
-  //const habitId = req.params.id; // Burada id'yi doğru alıyoruz
-  const { habitTitle, habitDesc, habitDay, habitId } = req.body;
-
-  console.log("title: " + habitTitle);
-  console.log("desc: " + habitDesc);
-  console.log("day: " + habitDay);
-  console.log("id: " + habitId);
-
-  try {
+router.put("/:id", async (req, res) => {
+    const habitId = req.params.id;
+    const { habitTitle, habitDesc, habitDay } = req.body;
+  
+    try {
       const updatedHabit = await Habit.findByIdAndUpdate(
-          habitId,
-          {
-              habitTitle,
-              habitDesc,
-              habitDay
-          },
-          { new: true, runValidators: true }
+        habitId,
+        {
+          habitTitle,
+          habitDesc,
+          habitDay,
+        },
+        { new: true, runValidators: true }
       );
-
+  
       if (!updatedHabit) {
-          return res.status(404).json({ message: "Habit bulunamadı!" });
+        return res.status(404).json({ message: "Habit bulunamadı!" });
       }
-
+  
       res.status(200).json(updatedHabit);
-  } catch (error) {
+    } catch (error) {
       res.status(500).json({ error: error.message });
-  }
-});
+    }
+  });
 
 /* app.delete("/habit/:id", async (req, res) => {
     const { id } = req.params;  // URL'den id alıyoruz
