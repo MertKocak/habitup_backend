@@ -15,22 +15,10 @@ mongoose.connect(mongoUrl)
 require("./Habits");
 const Habit = mongoose.model("HabitInfo")
 
-app.get('/habit', async (req, res) => {   
-    try {
-      const habit = await Habit.findById(objectId);
-      if (!habit) {
-        return res.status(404).json({ message: "Habit bulunamadı!" });
-      }
-      res.status(200).json(habit);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-/* app.get('/habit', async (req, res) => {
+app.get('/habit', async (req, res) => {
     const data = await Habit.find();
     res.json(data);
-  }); */
+  });
 
 app.post("/habit", async (req, res) => {
     const {habitTitle, habitDesc, habitDay} = req.body
