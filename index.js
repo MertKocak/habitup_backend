@@ -41,6 +41,24 @@ app.post('/register', async (req, res) => {
   }
 });
 
+app.get('/login', async (req, res) => {
+  const data = await Habit.find();
+  res.json(data);
+});
+
+app.get('/login/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const habit = await Habit.findById(id);
+    if (!habit) {
+      return res.status(404).json({ error: 'Habit not found' });
+    }
+    res.json(habit);
+  } catch (error) {
+    res.status(400).json({ error: 'Invalid habit ID' });
+  }
+});
+
 // Kullanıcı Girişi
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
