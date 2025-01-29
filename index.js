@@ -7,72 +7,74 @@ app.use(express.json());
 const mongoUrl = "mongodb+srv://mertkocak2811:9902051013m@habitupc1.kruic.mongodb.net/?retryWrites=true&w=majority&appName=habitupc1"
 
 mongoose.connect(mongoUrl)
-    .then(() => { console.log('database connected...') }
-    ).catch((e) => {
-        console.log(e)
-    });
+  .then(() => { console.log('database connected...') }
+  ).catch((e) => {
+    console.log(e)
+  });
 
 require("./Habits");
 const Habit = mongoose.model("HabitInfo")
 
 app.get('/habit', async (req, res) => {
-    const data = await Habit.find();
-    res.json(data);
-  });
+  const data = await Habit.find();
+  res.json(data);
+});
 
-  app.get('/habit/:id', async (req, res) => {
-    const { id } = req.params;
-    try {
-      const habit = await Habit.findById(id);
-      if (!habit) {
-        return res.status(404).json({ error: 'Habit not found' });
-      }
-      res.json(habit);
-    } catch (error) {
-      res.status(400).json({ error: 'Invalid habit ID' });
+app.get('/habit/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const habit = await Habit.findById(id);
+    if (!habit) {
+      return res.status(404).json({ error: 'Habit not found' });
     }
-  });
-
-app.post("/habit", async (req, res) => {
-    const {habitTitle, habitDesc, habitDay} = req.body
-    try {
-        await Habit.create(
-            {
-                habitTitle,
-                habitDesc,
-                habitDay,
-            }
-        );
-        res.send({ status: "ok", data: "habit created WELLDONE!" })
-    } catch (error) {
-        res.send({ status: "error", data: error })
-    }
+    res.json(habit);
+  } catch (error) {
+    res.status(400).json({ error: 'Invalid habit ID' });
+  }
 });
 
 app.put("/habit/:id", async (req, res) => {
-    //const habitId = req.params.id;
-    const { habitTitle, habitDesc, habitDay, habitId } = req.body;
-  
-    try {
-      const updatedHabit = await Habit.findByIdAndUpdate(
-        habitId,
-        {
-          habitTitle,
-          habitDesc,
-          habitDay,
-        },
-        { new: true, runValidators: true }
-      );
-  
-      if (!updatedHabit) {
-        return res.status(404).json({ message: "Habit bulunamadı!" });
-      }
-  
-      res.status(200).json(updatedHabit);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+  const habitId = req.params.id;
+  const { habitTitle, habitDesc, habitDay } = req.body;
+
+  try {
+    const updatedHabit = await Habit.findByIdAndUpdate(
+      habitId,
+      {
+        habitTitle,
+        habitDesc,
+        habitDay,
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedHabit) {
+      return res.status(404).json({ message: "Habit bulunamadı!" });
     }
-  });
+
+    res.status(200).json(updatedHabit);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/habit", async (req, res) => {
+  const { habitTitle, habitDesc, habitDay } = req.body
+  try {
+    await Habit.create(
+      {
+        habitTitle,
+        habitDesc,
+        habitDay,
+      }
+    );
+    res.send({ status: "ok", data: "habit created WELLDONE!" })
+  } catch (error) {
+    res.send({ status: "error", data: error })
+  }
+});
+
+
 
 /* app.delete("/habit/:id", async (req, res) => {
     const { id } = req.params;  // URL'den id alıyoruz
@@ -94,5 +96,5 @@ app.put("/habit/:id", async (req, res) => {
 }); */
 
 app.listen(3000, () => {
-    console.log("server started...")
+  console.log("server started...")
 })
