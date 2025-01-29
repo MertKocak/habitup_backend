@@ -75,8 +75,7 @@ app.post("/habit", async (req, res) => {
 });
 
 
-
-/* app.delete("/habit/:id", async (req, res) => {
+app.delete("/habit/:id", async (req, res) => {
     const { id } = req.params;  // URL'den id alıyoruz
 
     try {
@@ -93,7 +92,7 @@ app.post("/habit", async (req, res) => {
         console.log(error);
         res.status(500).send({ status: "error", data: "Failed to delete habit!" });
     }
-}); */
+});
 
 app.listen(3000, () => {
   console.log("server started...")
