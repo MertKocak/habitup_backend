@@ -19,6 +19,9 @@ mongoose.connect(mongoUrl)
 require("./Habits");
 const Habit = mongoose.model("HabitInfo")
 
+require("./User");
+const Habit = mongoose.model("User")
+
 
 // Kullanıcı Kaydı
 app.post('/register', async (req, res) => {

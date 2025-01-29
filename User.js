@@ -7,6 +7,10 @@ const UserSchema = new mongoose.Schema({
   password: { type: String, required: true },
 });
 
+{
+    collection: "User"
+}
+
 // Şifreyi kaydetmeden önce hash'le
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
@@ -14,4 +18,4 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-module.exports = mongoose.model('User', UserSchema);
+mongoose.model('User', UserSchema);
