@@ -20,7 +20,7 @@ require("./Habits");
 const Habit = mongoose.model("HabitInfo")
 
 require("./User");
-const Habit = mongoose.model("User")
+const User = mongoose.model("User")
 
 
 // Kullanıcı Kaydı
