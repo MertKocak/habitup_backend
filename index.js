@@ -2,7 +2,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const User = require('./User');
 const { ObjectId } = mongoose.Types;
 const app = express();
 app.use(express.json());
