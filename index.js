@@ -42,20 +42,20 @@ app.post('/register', async (req, res) => {
 });
 
 app.get('/login', async (req, res) => {
-  const data = await Habit.find();
+  const data = await User.find();
   res.json(data);
 });
 
 app.get('/login/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const habit = await Habit.findById(id);
-    if (!habit) {
-      return res.status(404).json({ error: 'Habit not found' });
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ error: 'user not found' });
     }
-    res.json(habit);
+    res.json(user);
   } catch (error) {
-    res.status(400).json({ error: 'Invalid habit ID' });
+    res.status(400).json({ error: 'Invalid user ID' });
   }
 });
 
