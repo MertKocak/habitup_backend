@@ -59,26 +59,93 @@ app.get('/login/:id', async (req, res) => {
   }
 });
 
-// Kullanıcı Girişi
+// JWT Secret Key
+const JWT_SECRET = "your_jwt_secret_key";
+
+// Kullanıcı Giriş Yapma Endpoint'i
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
-
+  
   try {
+    // Kullanıcıyı veritabanında bul
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: 'Kullanıcı bulunamadı' });
+    if (!user) {
+      return res.status(400).json({ message: "Kullanıcı bulunamadı!" });
+    }
 
-    // Şifre doğrulama
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) return res.status(400).json({ message: 'Geçersiz şifre' });
+    // Şifreyi doğrula
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(400).json({ message: "Şifre hatalı!" });
+    }
 
-    // JWT oluştur
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    // JWT token oluştur
+    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '1h' });
 
-    res.status(200).json({ token, user: { id: user._id, username: user.username, email: user.email } });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.json({ token });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
+
+
+// JWT token doğrulama middleware'i
+const authenticateToken = (req, res, next) => {
+  const token = req.headers['authorization'];
+
+  if (!token) {
+    return res.status(401).json({ message: "Token gereklidir!" });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ message: "Geçersiz token!" });
+    }
+
+    req.user = user;
+    next();
+  });
+};
+
+// Kullanıcı Bilgilerine Erişim Endpoint'i
+app.get('/user', authenticateToken, async (req, res) => {
+  try {
+    // Kullanıcının ID'sine göre kullanıcıyı bul
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: "Kullanıcı bulunamadı!" });
+    }
+
+    res.json({ email: user.email, name: user.name }); // Kullanıcı bilgilerini döndür
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 app.get('/habit', async (req, res) => {
   const data = await Habit.find();
