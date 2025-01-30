@@ -59,9 +59,6 @@ app.get('/login/:id', async (req, res) => {
   }
 });
 
-// JWT Secret Key
-const JWT_SECRET = "your_jwt_secret_key";
-
 // Kullanıcı Giriş Yapma Endpoint'i
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
