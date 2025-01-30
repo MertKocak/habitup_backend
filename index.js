@@ -41,10 +41,10 @@ app.post('/register', async (req, res) => {
   }
 });
 
-app.get('/login', async (req, res) => {
+/* app.get('/login', async (req, res) => {
   const data = await User.find();
   res.json(data);
-});
+}); */
 
 app.get('/login/:id', async (req, res) => {
   const { id } = req.params;
@@ -85,7 +85,7 @@ app.post('/login', async (req, res) => {
 
 
 
-// JWT token doğrulama middleware'i
+/* // JWT token doğrulama middleware'i
 const authenticateToken = (req, res, next) => {
   const token = req.headers['authorization'];
 
@@ -116,7 +116,7 @@ app.get('/login', authenticateToken, async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-});
+}); */
 
 
 
