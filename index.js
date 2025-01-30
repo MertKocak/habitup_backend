@@ -41,23 +41,11 @@ app.post('/register', async (req, res) => {
   }
 });
 
-/* app.get('/login', async (req, res) => {
+app.get('/login', async (req, res) => {
   const data = await User.find();
   res.json(data);
-}); */
-
-app.get('/login/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).json({ error: 'user not found' });
-    }
-    res.json(user);
-  } catch (error) {
-    res.status(400).json({ error: 'Invalid user ID' });
-  }
 });
+
 
 // Kullanıcı Girişi
 app.post('/login', async (req, res) => {
@@ -82,65 +70,7 @@ app.post('/login', async (req, res) => {
 
 
 
-
-
-
-/* // JWT token doğrulama middleware'i
-const authenticateToken = (req, res, next) => {
-  const token = req.headers['authorization'];
-
-  if (!token) {
-    return res.status(401).json({ message: "Token gereklidir!" });
-  }
-
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: "Geçersiz token!" });
-    }
-
-    req.user = user;
-    next();
-  });
-};
-
-// Kullanıcı Bilgilerine Erişim Endpoint'i
-app.get('/login', authenticateToken, async (req, res) => {
-  try {
-    // Kullanıcının ID'sine göre kullanıcıyı bul
-    const user = await User.findById(req.user.id);
-    if (!user) {
-      return res.status(404).json({ message: "Kullanıcı bulunamadı!" });
-    }
-
-    res.json({ email: user.email, name: user.name }); // Kullanıcı bilgilerini döndür
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-}); */
-
-
-
-// Email ile kullanıcıyı bulma ve kullanıcı adını döndürme
-app.get('/login', async (req, res) => {
-  const { email } = req.query;  // Email parametresini query'den alıyoruz
-
-  try {
-      const user = await User.findOne({ email });
-      if (!user) {
-          return res.status(404).json({ message: 'Kullanıcı bulunamadı!' });
-      }
-
-      // Kullanıcı varsa, kullanıcı adını dönüyoruz
-      res.status(200).json({ username: user.name });
-  } catch (error) {
-      res.status(500).json({ error: error.message });
-  }
-});
-
-
-
-
-
+/**-------------------------------------------------- */
 
 
 app.get('/habit', async (req, res) => {
