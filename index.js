@@ -120,6 +120,23 @@ app.get('/user', authenticateToken, async (req, res) => {
 
 
 
+// Email ile kullanıcıyı bulma ve kullanıcı adını döndürme
+app.get('/getUserByEmail', async (req, res) => {
+  const { email } = req.query;  // Email parametresini query'den alıyoruz
+
+  try {
+      const user = await User.findOne({ email });
+      if (!user) {
+          return res.status(404).json({ message: 'Kullanıcı bulunamadı!' });
+      }
+
+      // Kullanıcı varsa, kullanıcı adını dönüyoruz
+      res.status(200).json({ username: user.name });
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
+});
+
 
 
 
