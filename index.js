@@ -104,7 +104,7 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Kullanıcı Bilgilerine Erişim Endpoint'i
-app.get('/user', authenticateToken, async (req, res) => {
+app.get('/login', authenticateToken, async (req, res) => {
   try {
     // Kullanıcının ID'sine göre kullanıcıyı bul
     const user = await User.findById(req.user.id);
@@ -121,7 +121,7 @@ app.get('/user', authenticateToken, async (req, res) => {
 
 
 // Email ile kullanıcıyı bulma ve kullanıcı adını döndürme
-app.get('/getUserByEmail', async (req, res) => {
+app.get('/login', async (req, res) => {
   const { email } = req.query;  // Email parametresini query'den alıyoruz
 
   try {
