@@ -5,9 +5,9 @@ const bcrypt = require('bcryptjs');
 const { ObjectId } = mongoose.Types;
 const app = express();
 app.use(express.json());
-app.use(authenticateUser); 
 require('dotenv').config();
 const { authenticateUser } = require("./middleware/auth");
+app.use(authenticateUser); 
 
 const mongoUrl = "mongodb+srv://mertkocak2811:9902051013m@habitupc1.kruic.mongodb.net/?retryWrites=true&w=majority&appName=habitupc1"
 
