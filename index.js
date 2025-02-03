@@ -74,16 +74,16 @@ app.post('/login', async (req, res) => {
 /**-------------------------------------------------- */
 
 
+// Habitleri çekme işlemi
 app.get('/habit', authenticateUser, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.id;  // Token'dan alınan userId
     const userHabits = await Habit.find({ user: userId }); // Kullanıcıya özel filtre
     res.status(200).json(userHabits);
-
   } catch (error) {
+    console.error(error);  // Hata logu
     res.status(500).json({ error: "Could not fetch habits" });
   }
-
 });
 
 app.get('/habit/:id', async (req, res) => {
