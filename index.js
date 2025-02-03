@@ -6,7 +6,7 @@ const { ObjectId } = mongoose.Types;
 const app = express();
 app.use(express.json());
 require('dotenv').config();
-import {authenticateUser } from "./middleware/auth"
+const { authenticateUser } = require("./middleware/auth");
 
 const mongoUrl = "mongodb+srv://mertkocak2811:9902051013m@habitupc1.kruic.mongodb.net/?retryWrites=true&w=majority&appName=habitupc1"
 
