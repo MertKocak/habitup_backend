@@ -76,6 +76,7 @@ app.post('/login', async (req, res) => {
 
 // Habitleri çekme işlemi
 app.get('/habit', authenticateUser, async (req, res) => {
+  console.log("token6: " + token)
   try {
     const userId = req.user.id;  // Token'dan alınan userId
     const userHabits = await Habit.find({ user: userId }); // Kullanıcıya özel filtre
