@@ -6,6 +6,7 @@ const { ObjectId } = mongoose.Types;
 const app = express();
 app.use(express.json());
 require('dotenv').config();
+import {authenticateUser } from "./middleware/auth"
 
 const mongoUrl = "mongodb+srv://mertkocak2811:9902051013m@habitupc1.kruic.mongodb.net/?retryWrites=true&w=majority&appName=habitupc1"
 
@@ -15,10 +16,10 @@ mongoose.connect(mongoUrl)
     console.log(e)
   });
 
-require("./Habits");
+require("./models/Habits");
 const Habit = mongoose.model("HabitInfo")
 
-require("./User");
+require("./models/User");
 const User = mongoose.model("User")
 
 
@@ -73,9 +74,16 @@ app.post('/login', async (req, res) => {
 /**-------------------------------------------------- */
 
 
-app.get('/habit', async (req, res) => {
-  const data = await Habit.find();
-  res.json(data);
+app.get('/habit', authenticateUser, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const userHabits = await Habit.find({ user: userId }); // Kullanıcıya özel filtre
+    res.status(200).json(userHabits);
+
+  } catch (error) {
+    res.status(500).json({ error: "Could not fetch habits" });
+  }
+
 });
 
 app.get('/habit/:id', async (req, res) => {
@@ -116,16 +124,28 @@ app.put('/habit/:id', async (req, res) => {
   }
 });
 
-app.post("/habit", async (req, res) => {
-  const { habitTitle, habitDesc, habitDay } = req.body
+app.post("/habit", authenticateUser, async (req, res) => {
   try {
-    await Habit.create(
-      {
-        habitTitle,
-        habitDesc,
-        habitDay,
-      }
-    );
+    const { habitTitle, habitDesc, habitDay } = req.body
+    const userId = req.user.id; // Kimlik doğrulama ile gelen kullanıcı ID'si
+
+    const newHabit = new Habit({
+      habitTitle,
+      habitDesc,
+      habitDay,
+      user: userId, // Habit ile kullanıcıyı ilişkilendiriyoruz
+    });
+
+    /*  await Habit.create(
+       {
+         habitTitle,
+         habitDesc,
+         habitDay,
+       }
+     ); */
+
+    await newHabit.save();
+
     res.send({ status: "ok", data: "habit created WELLDONE!" })
   } catch (error) {
     res.send({ status: "error", data: error })
@@ -133,22 +153,22 @@ app.post("/habit", async (req, res) => {
 });
 
 app.delete("/habit/:id", async (req, res) => {
-    const { id } = req.params;  // URL'den id alıyoruz
+  const { id } = req.params;  // URL'den id alıyoruz
 
-    try {
-        // Mongoose'un findByIdAndDelete metodunu kullanarak veriyi siliyoruz
-        const deletedHabit = await Habit.findByIdAndDelete(id);
+  try {
+    // Mongoose'un findByIdAndDelete metodunu kullanarak veriyi siliyoruz
+    const deletedHabit = await Habit.findByIdAndDelete(id);
 
-        if (!deletedHabit) {
-            // Eğer belirtilen id'ye sahip bir veri bulunamazsa
-            return res.status(404).send({ status: "error", data: "Habit not found!" });
-        }
-
-        res.send({ status: "ok", data: "Habit deleted successfully!" });
-    } catch (error) {
-        console.log(error);
-        res.status(500).send({ status: "error", data: "Failed to delete habit!" });
+    if (!deletedHabit) {
+      // Eğer belirtilen id'ye sahip bir veri bulunamazsa
+      return res.status(404).send({ status: "error", data: "Habit not found!" });
     }
+
+    res.send({ status: "ok", data: "Habit deleted successfully!" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ status: "error", data: "Failed to delete habit!" });
+  }
 });
 
 app.listen(3000, () => {
