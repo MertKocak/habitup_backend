@@ -8,7 +8,7 @@ const UserSchema = new mongoose.Schema({
 });
 
 {
-    collection: "User"
+    collection: "UserInfo"
 }
 
 // Şifreyi kaydetmeden önce hash'le
@@ -18,4 +18,4 @@ UserSchema.pre('save', async function (next) {
   next();
 });
 
-mongoose.model('User', UserSchema);
+mongoose.model('UserInfo', UserSchema);

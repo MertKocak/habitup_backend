@@ -1,13 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+
 const { ObjectId } = mongoose.Types;
+
 const app = express();
+
 app.use(express.json());
 require('dotenv').config();
 const { authenticateUser } = require("./middleware/auth");
-app.use(authenticateUser); 
 
 const mongoUrl = "mongodb+srv://mertkocak2811:9902051013m@habitupc1.kruic.mongodb.net/?retryWrites=true&w=majority&appName=habitupc1"
 
@@ -17,26 +18,27 @@ mongoose.connect(mongoUrl)
     console.log(e)
   });
 
+
+
 require("./models/Habits");
 const Habit = mongoose.model("HabitInfo")
 
 require("./models/User");
-const User = mongoose.model("User")
+const User = mongoose.model("UserInfo")
 
 
 // Kullanıcı Kaydı
 app.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
-
   try {
     // Kullanıcı zaten var mı kontrol et
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: 'Email zaten kayıtlı' });
 
     // Yeni kullanıcı oluştur
-    const user = new User({ username, email, password });
-    await user.save();
-
+    await User.creat({
+      username, email, password
+    });
     res.status(201).json({ message: 'Kayıt başarılı' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -61,10 +63,7 @@ app.post('/login', async (req, res) => {
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) return res.status(400).json({ message: 'Geçersiz şifre' });
 
-    // JWT oluştur
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-    res.status(200).json({ token, user: { id: user._id, username: user.username, email: user.email } });
+    res.status(200).json({ user: { id: user._id, username: user.username, email: user.email } });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
