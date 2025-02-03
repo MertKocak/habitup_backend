@@ -36,7 +36,7 @@ app.post('/register', async (req, res) => {
     if (existingUser) return res.status(400).json({ message: 'Email zaten kayıtlı' });
 
     // Yeni kullanıcı oluştur
-    await User.creat({
+    await User.create({
       username, email, password
     });
     res.status(201).json({ message: 'Kayıt başarılı' });
