@@ -20,8 +20,6 @@ mongoose.connect(mongoUrl)
     console.log(e)
   });
 
-
-
 require("./models/Habits");
 const Habit = mongoose.model("HabitInfo")
 
