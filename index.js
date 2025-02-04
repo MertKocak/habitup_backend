@@ -53,7 +53,30 @@ app.get('/login', async (req, res) => {
 
 //login user
 app.post('/login', async (req, res) => {
+
   const { email, password } = req.body;
+  console.log(req.body);
+  const oldUser = await User.findOne({ email: email });
+
+  if (!oldUser) {
+    return res.send({ data: "User doesn't exists!!" });
+  }
+
+  if (await bcrypt.compare(password, oldUser.password)) {
+    const token = jwt.sign({ email: oldUser.email }, JWT_SECRET);
+    console.log(token);
+    if (res.status(201)) {
+      return res.send({
+        status: "ok",
+        data: token,
+        userType: oldUser.userType,
+      });
+    } else {
+      return res.send({ error: "error" });
+    }
+  }
+
+  /* const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ email });
@@ -69,7 +92,7 @@ app.post('/login', async (req, res) => {
     res.status(200).json({ token, user: { id: user._id, username: user.username, email: user.email } });
   } catch (err) {
     res.status(500).json({ error: err.message });
-  }
+  } */
 });
 
 
