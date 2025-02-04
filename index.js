@@ -27,7 +27,7 @@ require("./models/User");
 const User = mongoose.model("UserInfo")
 
 
-// Kullanıcı Kaydı
+//register user
 app.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
   try {
@@ -51,7 +51,7 @@ app.get('/login', async (req, res) => {
 });
 
 
-// Kullanıcı Girişi
+//login user
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -69,6 +69,21 @@ app.post('/login', async (req, res) => {
     res.status(200).json({ token, user: { id: user._id, username: user.username, email: user.email } });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+
+app.post("/userdata", async (req, res) => {
+  const { token } = req.body;
+  try {
+    const user = jwt.verify(token, JWT_SECRET);
+    const useremail = user.email;
+
+    User.findOne({ email: useremail }).then((data) => {
+      return res.send({ status: "Ok", data: data });
+    });
+  } catch (error) {
+    return res.send({ error: error });
   }
 });
 
@@ -95,7 +110,7 @@ app.post('/login', async (req, res) => {
 /**-------------------------------------------------- */
 
 
-// Habitleri çekme işlemi
+//get all habits
 app.get('/habit', async (req, res) => {
   const data = await Habit.find();
   res.json(data);
@@ -114,6 +129,7 @@ app.get('/habit/:id', async (req, res) => {
   }
 });
 
+//update habit
 app.put('/habit/:id', async (req, res) => {
   const habitId = req.params.id;
   const { habitTitle, habitDesc, habitDay } = req.body;
@@ -139,6 +155,7 @@ app.put('/habit/:id', async (req, res) => {
   }
 });
 
+//create habit
 app.post("/habit", async (req, res) => {
   const { habitTitle, habitDesc, habitDay } = req.body
   try {
@@ -155,6 +172,7 @@ app.post("/habit", async (req, res) => {
   }
 });
 
+//delete habit
 app.delete("/habit/:id", async (req, res) => {
   const { id } = req.params;  // URL'den id alıyoruz
 
