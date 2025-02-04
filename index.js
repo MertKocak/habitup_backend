@@ -1,16 +1,18 @@
 const express = require('express');
+const app = express();
 const mongoose = require('mongoose');
+app.use(express.json());
 const bcrypt = require('bcryptjs');
+const jwt = require("jsonwebtoken");
 
 const { ObjectId } = mongoose.Types;
 
-const app = express();
-
-app.use(express.json());
 require('dotenv').config();
 const { authenticateUser } = require("./middleware/auth");
 
 const mongoUrl = "mongodb+srv://mertkocak2811:9902051013m@habitupc1.kruic.mongodb.net/?retryWrites=true&w=majority&appName=habitupc1"
+const JWT_SECRET =
+  "hvdvay6ert72839289()aiyg8t87qt72393293883uhefiuh78ttq3ifi78272jdsds039[]]pou89ywe";
 
 mongoose.connect(mongoUrl)
   .then(() => { console.log('database connected...') }
@@ -52,7 +54,32 @@ app.get('/login', async (req, res) => {
 
 
 // Kullanıcı Girişi
-app.post('/login', async (req, res) => {
+app.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  console.log(req.body);
+  const oldUser = await User.findOne({ email: email });
+
+  if (!oldUser) {
+    return res.send({ data: "User doesn't exists!!" });
+  }
+
+  if (await bcrypt.compare(password, oldUser.password)) {
+    const token = jwt.sign({ email: oldUser.email }, JWT_SECRET);
+    console.log(token);
+    if (res.status(201)) {
+      return res.send({
+        status: "ok",
+        data: token,
+        userType: oldUser.userType,
+      });
+    } else {
+      return res.send({ error: "error" });
+    }
+  }
+});
+
+
+/* app.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -67,7 +94,7 @@ app.post('/login', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-});
+}); */
 
 
 
