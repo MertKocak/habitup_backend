@@ -98,15 +98,9 @@ app.post('/login', async (req, res) => {
 
 
 // Habitleri çekme işlemi
-app.get('/habit', authenticateUser, async (req, res) => {
-  try {
-    const userId = req.user.id;  // Token'dan alınan userId
-    const userHabits = await Habit.find({ user: userId }); // Kullanıcıya özel filtre
-    res.status(200).json(userHabits);
-  } catch (error) {
-    console.error(error);  // Hata logu
-    res.status(500).json({ error: "Could not fetch habits" });
-  }
+app.get('/habit', async (req, res) => {
+  const data = await Habit.find();
+  res.json(data);
 });
 
 app.get('/habit/:id', async (req, res) => {
@@ -147,28 +141,16 @@ app.put('/habit/:id', async (req, res) => {
   }
 });
 
-app.post("/habit", authenticateUser, async (req, res) => {
+app.post("/habit", async (req, res) => {
+  const { habitTitle, habitDesc, habitDay } = req.body
   try {
-    const { habitTitle, habitDesc, habitDay } = req.body
-    const userId = req.user.id; // Kimlik doğrulama ile gelen kullanıcı ID'si
-
-    const newHabit = new Habit({
-      habitTitle,
-      habitDesc,
-      habitDay,
-      user: userId, // Habit ile kullanıcıyı ilişkilendiriyoruz
-    });
-
-    /*  await Habit.create(
-       {
-         habitTitle,
-         habitDesc,
-         habitDay,
-       }
-     ); */
-
-    await newHabit.save();
-
+    await Habit.create(
+      {
+        habitTitle,
+        habitDesc,
+        habitDay,
+      }
+    );
     res.send({ status: "ok", data: "habit created WELLDONE!" })
   } catch (error) {
     res.send({ status: "error", data: error })
