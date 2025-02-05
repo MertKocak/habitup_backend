@@ -29,19 +29,27 @@ const User = mongoose.model("UserInfo")
 
 //register user
 app.post('/register', async (req, res) => {
+  console.log("1")
   const { username, email, password } = req.body;
 
   // Eksik alan kontrolü
   if (!username || !email || !password) {
+    console.log("2")
     return res.status(400).json({ message: 'Lütfen tüm alanları doldurun!' });
   }
 
+  console.log("3")
+
   try {
+    console.log("4")
     // Kullanıcı zaten var mı kontrol et
     const existingUser = await User.findOne({ email });
     if (existingUser) {
+      console.log("5")
       return res.status(400).json({ message: 'Bu e-posta zaten kayıtlı!' });
     }
+
+    console.log("6")
 
     // Yeni kullanıcı oluştur
     await User.create({
@@ -50,8 +58,11 @@ app.post('/register', async (req, res) => {
       password
     });
 
+    console.log("7")
+
     res.status(201).json({ message: 'Kayıt başarılı' });
   } catch (err) {
+    console.log("8")
     console.error(err);
     res.status(500).json({ error: 'Sunucu hatası oluştu!' });
   }
