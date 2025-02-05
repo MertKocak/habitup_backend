@@ -59,13 +59,13 @@ app.post('/login', async (req, res) => {
     const oldUser = await User.findOne({ email: email });
 
     if (!oldUser) {
-      return res.status(404).send({ status: "error", error: "Kullanıcı bulunamadı!" });
+      return res.status(404).send({ status: "userNotFound", error: "Kullanıcı bulunamadı!" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, oldUser.password);
 
     if (!isPasswordValid) {
-      return res.status(401).send({ status: "error", error: "Hatalı şifre!" });
+      return res.status(401).send({ status: "userNotFound", error: "Hatalı şifre!" });
     }
 
     const token = jwt.sign({ email: oldUser.email }, JWT_SECRET);
