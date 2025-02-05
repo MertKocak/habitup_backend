@@ -53,47 +53,35 @@ app.get('/login', async (req, res) => {
 
 //login user
 app.post('/login', async (req, res) => {
-
   const { email, password } = req.body;
-  console.log(req.body);
-  const oldUser = await User.findOne({ email: email });
-
-  if (!oldUser) {
-    return res.send({ data: "User doesn't exists!!" });
-  }
-
-  if (await bcrypt.compare(password, oldUser.password)) {
-    const token = jwt.sign({ email: oldUser.email }, JWT_SECRET);
-    console.log(token);
-    if (res.status(201)) {
-      return res.send({
-        status: "ok",
-        data: token,
-        userType: oldUser.userType,
-      });
-    } else {
-      return res.send({ error: "error" });
-    }
-  }
-
-  /* const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: 'Kullanıcı bulunamadı' });
+    const oldUser = await User.findOne({ email: email });
 
-    // Şifre doğrulama
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) return res.status(400).json({ message: 'Geçersiz şifre' });
+    if (!oldUser) {
+      return res.status(404).send({ error: "Kullanıcı bulunamadı!" });
+    }
 
-    // JWT oluştur
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const isPasswordValid = await bcrypt.compare(password, oldUser.password);
 
-    res.status(200).json({ token, user: { id: user._id, username: user.username, email: user.email } });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  } */
+    if (!isPasswordValid) {
+      return res.status(401).send({ error: "Hatalı şifre!" });
+    }
+
+    const token = jwt.sign({ email: oldUser.email }, JWT_SECRET);
+
+    return res.status(200).send({
+      status: "ok",
+      data: token,
+      userType: oldUser.userType,
+    });
+
+  } catch (error) {
+    console.error("Sunucu hatası:", error);
+    return res.status(500).send({ error: "Sunucu hatası oluştu!" });
+  }
 });
+
 
 
 app.post("/userdata", async (req, res) => {
