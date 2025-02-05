@@ -37,7 +37,7 @@ app.post('/register', async (req, res) => {
   }
 
   try {
-    // Kullanıcı zaten var mı kontrol et
+    // Sadece e-posta için benzersizlik kontrolü
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'Bu e-posta zaten kayıtlı!' });
@@ -56,6 +56,7 @@ app.post('/register', async (req, res) => {
     res.status(500).json({ error: 'Sunucu hatası oluştu!' });
   }
 });
+
 
 
 app.get('/login', async (req, res) => {
