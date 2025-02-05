@@ -59,13 +59,13 @@ app.post('/login', async (req, res) => {
     const oldUser = await User.findOne({ email: email });
 
     if (!oldUser) {
-      return res.status(404).send({ error: "Kullanıcı bulunamadı!" });
+      return res.status(404).send({ status: "error", error: "Kullanıcı bulunamadı!" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, oldUser.password);
 
     if (!isPasswordValid) {
-      return res.status(401).send({ error: "Hatalı şifre!" });
+      return res.status(401).send({ status: "error", error: "Hatalı şifre!" });
     }
 
     const token = jwt.sign({ email: oldUser.email }, JWT_SECRET);
@@ -78,7 +78,7 @@ app.post('/login', async (req, res) => {
 
   } catch (error) {
     console.error("Sunucu hatası:", error);
-    return res.status(500).send({ error: "Sunucu hatası oluştu!" });
+    return res.status(500).send({ status: "error", error: "Sunucu hatası oluştu!" });
   }
 });
 
