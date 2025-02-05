@@ -30,20 +30,33 @@ const User = mongoose.model("UserInfo")
 //register user
 app.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
+
+  // Eksik alan kontrolü
+  if (!username || !email || !password) {
+    return res.status(400).json({ message: 'Lütfen tüm alanları doldurun!' });
+  }
+
   try {
     // Kullanıcı zaten var mı kontrol et
     const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: 'Email zaten kayıtlı' });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Bu e-posta zaten kayıtlı!' });
+    }
 
     // Yeni kullanıcı oluştur
     await User.create({
-      username, email, password
+      username,
+      email,
+      password
     });
+
     res.status(201).json({ message: 'Kayıt başarılı' });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error(err);
+    res.status(500).json({ error: 'Sunucu hatası oluştu!' });
   }
 });
+
 
 app.get('/login', async (req, res) => {
   const data = await User.find();
