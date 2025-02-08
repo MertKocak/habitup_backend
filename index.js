@@ -26,47 +26,69 @@ const Habit = mongoose.model("HabitInfo")
 require("./models/User");
 const User = mongoose.model("UserInfo")
 
-const authenticate = (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ message: 'Token required' });
-
-  try {
-    const decoded = jwt.verify(token, 'secretKey');
-    req.user = { _id: decoded.userId }; // Kullanıcı ID'si burada
-    next();
-  } catch (error) {
-    res.status(401).json({ message: 'Invalid token' });
-  }
-};
 
 //register user
 app.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
-  const userId = req.user._id; // Örneğin JWT veya session ile gelen userId
 
   // Eksik alan kontrolü
   if (!username || !email || !password) {
     return res.status(400).json({ message: 'Lütfen tüm alanları doldurun!' });
   }
+
   try {
     // Kullanıcı zaten var mı kontrol et
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'Bu e-posta zaten kayıtlı!' });
     }
-    // Yeni kullanıcı oluştur
-    await User.create({
+
+    // Yeni kullanıcı oluştur ve kaydet
+    const newUser = new User({
       username,
       email,
-      password,
-      userId
+      password
     });
-    res.status(201).json({ message: 'Kayıt başarılı' });
+
+    await newUser.save();
+
+    // JWT token oluştur
+    const token = jwt.sign({ userId: newUser._id, email: newUser.email }, JWT_SECRET);
+
+    res.status(201).json({ message: 'Kayıt başarılı', token });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Sunucu hatası oluştu!' });
   }
 });
+/* app.post('/register', async (req, res) => {
+  const { username, email, password } = req.body;
+
+  // Eksik alan kontrolü
+  if (!username || !email || !password) {
+    return res.status(400).json({ message: 'Lütfen tüm alanları doldurun!' });
+  }
+
+  try {
+    // Kullanıcı zaten var mı kontrol et
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Bu e-posta zaten kayıtlı!' });
+    }
+
+    // Yeni kullanıcı oluştur
+    await User.create({
+      username,
+      email,
+      password
+    });
+
+    res.status(201).json({ message: 'Kayıt başarılı' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Sunucu hatası oluştu!' });
+  }
+}); */
 
 
 
@@ -77,28 +99,64 @@ app.get('/login', async (req, res) => {
 
 
 //login user
-app.post('/login', async (req, res) => {
+app.post("/login", async (req, res) => {
   const { email, password } = req.body;
+
   try {
     const oldUser = await User.findOne({ email: email });
+
     if (!oldUser) {
       return res.status(404).send({ status: "userNotFound", error: "Kullanıcı bulunamadı!" });
     }
+
     const isPasswordValid = await bcrypt.compare(password, oldUser.password);
+
     if (!isPasswordValid) {
       return res.status(401).send({ status: "userNotFound", error: "Hatalı şifre!" });
     }
-    const token = jwt.sign({ email: oldUser.email }, JWT_SECRET);
+
+    const token = jwt.sign({ userId: oldUser._id, email: oldUser.email }, JWT_SECRET);
+
     return res.status(200).send({
       status: "ok",
-      data: token,
+      token,
       userType: oldUser.userType,
     });
+
   } catch (error) {
     console.error("Sunucu hatası:", error);
     return res.status(500).send({ status: "error", error: "Sunucu hatası oluştu!" });
   }
 });
+/* app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const oldUser = await User.findOne({ email: email });
+
+    if (!oldUser) {
+      return res.status(404).send({ status: "userNotFound", error: "Kullanıcı bulunamadı!" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, oldUser.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).send({ status: "userNotFound", error: "Hatalı şifre!" });
+    }
+
+    const token = jwt.sign({ email: oldUser.email }, JWT_SECRET);
+
+    return res.status(200).send({
+      status: "ok",
+      data: token,
+      userType: oldUser.userType,
+    });
+
+  } catch (error) {
+    console.error("Sunucu hatası:", error);
+    return res.status(500).send({ status: "error", error: "Sunucu hatası oluştu!" });
+  }
+}); */
 
 
 
@@ -116,22 +174,20 @@ app.post("/userdata", async (req, res) => {
   }
 });
 
-/**-------------------------------------------------- */
 
 //get all habits
-app.get('/habit', async (req, res) => {
-  const userId = req.user._id; // Kullanıcı kimliği
-
+app.get("/habit", authenticateUser, async (req, res) => {
   try {
-    const habits = await HabitInfo.find({ userId });
+    const habits = await Habit.find({ userId: req.user.userId });
     res.status(200).json(habits);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching habits", error });
+    res.status(500).json({ error: error.message });
   }
-
-  /* const data = await Habit.find();
-  res.json(data); */
 });
+/* app.get('/habit', async (req, res) => {
+  const data = await Habit.find();
+  res.json(data);
+}); */
 
 app.get('/habit/:id', async (req, res) => {
   const { id } = req.params;
@@ -147,7 +203,27 @@ app.get('/habit/:id', async (req, res) => {
 });
 
 //update habit
-app.put('/habit/:id', async (req, res) => {
+app.put("/habit/:id", authenticateUser, async (req, res) => {
+  const { id } = req.params;
+  const { habitTitle, habitDesc, habitDay } = req.body;
+
+  try {
+    const updatedHabit = await Habit.findOneAndUpdate(
+      { _id: id, userId: req.user.userId },
+      { habitTitle, habitDesc, habitDay },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedHabit) {
+      return res.status(404).json({ message: "Habit bulunamadı veya yetkiniz yok!" });
+    }
+
+    res.status(200).json(updatedHabit);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+/* app.put('/habit/:id', async (req, res) => {
   const habitId = req.params.id;
   const { habitTitle, habitDesc, habitDay } = req.body;
 
@@ -170,10 +246,23 @@ app.put('/habit/:id', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-});
+}); */
 
 //create habit
-app.post("/habit", async (req, res) => {
+app.post("/habit", authenticateUser, async (req, res) => {
+  const { habitTitle, habitDesc, habitDay } = req.body;
+  const userId = req.user.userId;
+
+  try {
+    await Habit.create({ habitTitle, habitDesc, habitDay, userId });
+    res.status(201).send({ status: "ok", data: "Habit created successfully!" });
+  } catch (error) {
+    res.status(500).send({ status: "error", data: error.message });
+  }
+});
+
+
+/* app.post("/habit", async (req, res) => {
   const { habitTitle, habitDesc, habitDay } = req.body
   try {
     await Habit.create(
@@ -187,10 +276,25 @@ app.post("/habit", async (req, res) => {
   } catch (error) {
     res.send({ status: "error", data: error })
   }
-});
+}); */
 
 //delete habit
-app.delete("/habit/:id", async (req, res) => {
+app.delete("/habit/:id", authenticateUser, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedHabit = await Habit.findOneAndDelete({ _id: id, userId: req.user.userId });
+
+    if (!deletedHabit) {
+      return res.status(404).send({ status: "error", data: "Habit bulunamadı veya yetkiniz yok!" });
+    }
+
+    res.send({ status: "ok", data: "Habit deleted successfully!" });
+  } catch (error) {
+    res.status(500).send({ status: "error", data: error.message });
+  }
+});
+/* app.delete("/habit/:id", async (req, res) => {
   const { id } = req.params;  // URL'den id alıyoruz
 
   try {
@@ -207,7 +311,7 @@ app.delete("/habit/:id", async (req, res) => {
     console.log(error);
     res.status(500).send({ status: "error", data: "Failed to delete habit!" });
   }
-});
+}); */
 
 app.listen(3000, () => {
   console.log("server started...")
