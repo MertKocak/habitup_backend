@@ -29,40 +29,28 @@ const User = mongoose.model("UserInfo")
 
 //register user
 app.post('/register', async (req, res) => {
-  console.log("1")
   const { username, email, password } = req.body;
+  const userId = req.user._id; // Örneğin JWT veya session ile gelen userId
 
   // Eksik alan kontrolü
   if (!username || !email || !password) {
-    console.log("2")
     return res.status(400).json({ message: 'Lütfen tüm alanları doldurun!' });
   }
-
-  console.log("3")
-
   try {
-    console.log("4")
     // Kullanıcı zaten var mı kontrol et
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      console.log("5")
       return res.status(400).json({ message: 'Bu e-posta zaten kayıtlı!' });
     }
-
-    console.log("6")
-
     // Yeni kullanıcı oluştur
     await User.create({
       username,
       email,
-      password
+      password,
+      userId
     });
-
-    console.log("7")
-
     res.status(201).json({ message: 'Kayıt başarılı' });
   } catch (err) {
-    console.log("8")
     console.error(err);
     res.status(500).json({ error: 'Sunucu hatası oluştu!' });
   }
@@ -79,28 +67,21 @@ app.get('/login', async (req, res) => {
 //login user
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
-
   try {
     const oldUser = await User.findOne({ email: email });
-
     if (!oldUser) {
       return res.status(404).send({ status: "userNotFound", error: "Kullanıcı bulunamadı!" });
     }
-
     const isPasswordValid = await bcrypt.compare(password, oldUser.password);
-
     if (!isPasswordValid) {
       return res.status(401).send({ status: "userNotFound", error: "Hatalı şifre!" });
     }
-
     const token = jwt.sign({ email: oldUser.email }, JWT_SECRET);
-
     return res.status(200).send({
       status: "ok",
       data: token,
       userType: oldUser.userType,
     });
-
   } catch (error) {
     console.error("Sunucu hatası:", error);
     return res.status(500).send({ status: "error", error: "Sunucu hatası oluştu!" });
@@ -123,33 +104,21 @@ app.post("/userdata", async (req, res) => {
   }
 });
 
-
-/* app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: 'Kullanıcı bulunamadı' });
-
-    // Şifre doğrulama
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) return res.status(400).json({ message: 'Geçersiz şifre' });
-
-    res.status(200).json({ user: { id: user._id, username: user.username, email: user.email } });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-}); */
-
-
-
 /**-------------------------------------------------- */
-
 
 //get all habits
 app.get('/habit', async (req, res) => {
-  const data = await Habit.find();
-  res.json(data);
+  const userId = req.user._id; // Kullanıcı kimliği
+
+  try {
+    const habits = await HabitInfo.find({ userId });
+    res.status(200).json(habits);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching habits", error });
+  }
+
+  /* const data = await Habit.find();
+  res.json(data); */
 });
 
 app.get('/habit/:id', async (req, res) => {
