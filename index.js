@@ -26,6 +26,18 @@ const Habit = mongoose.model("HabitInfo")
 require("./models/User");
 const User = mongoose.model("UserInfo")
 
+const authenticate = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ message: 'Token required' });
+
+  try {
+    const decoded = jwt.verify(token, 'secretKey');
+    req.user = { _id: decoded.userId }; // Kullanıcı ID'si burada
+    next();
+  } catch (error) {
+    res.status(401).json({ message: 'Invalid token' });
+  }
+};
 
 //register user
 app.post('/register', async (req, res) => {
