@@ -1,4 +1,7 @@
 import jwt from "jsonwebtoken";
+const JWT_SECRET =
+  "hvdvay6ert72839289()aiyg8t87qt72393293883uhefiuh78ttq3ifi78272jdsds039[]]pou89ywe";
+
 
 async function authenticateUser(req, res, next) {
   const token = req.headers.authorization?.split(" ")[1];
