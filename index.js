@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 const { ObjectId } = mongoose.Types;
 
 require('dotenv').config();
-const { authenticateUser } = require("./middleware/auth");
+/* const { authenticateUser } = require("./middleware/auth"); */
 
 const mongoUrl = "mongodb+srv://mertkocak2811:9902051013m@habitupc1.kruic.mongodb.net/?retryWrites=true&w=majority&appName=habitupc1"
 const JWT_SECRET =
@@ -148,7 +148,7 @@ app.post("/userdata", async (req, res) => {
 
 //get all habits
 app.get('/habit', async (req, res) => {
-  const data = await Habit.find();
+  const habits = await Habit.find({ userId: req.user.email });
   res.json(data);
 });
 
@@ -200,6 +200,7 @@ app.post("/habit", async (req, res) => {
         habitTitle,
         habitDesc,
         habitDay,
+        userId: req.user.email
       }
     );
     res.send({ status: "ok", data: "habit created WELLDONE!" })
