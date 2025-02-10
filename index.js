@@ -146,13 +146,10 @@ app.post("/userdata", async (req, res) => {
 /**-------------------------------------------------- */
 
 
-app.get("/habit", authenticateUser, async (req, res) => {
-  try {
-    const habits = await Habit.find({ userId: req.user.userId });
-    res.status(200).json(habits);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+//get all habits
+app.get('/habit', async (req, res) => {
+  const data = await Habit.find();
+  res.json(data);
 });
 
 app.get('/habit/:id', async (req, res) => {
@@ -195,16 +192,14 @@ app.put('/habit/:id', async (req, res) => {
 });
 
 //create habit
-app.post("/habit", authenticateUser, async (req, res) => {
+app.post("/habit", async (req, res) => {
   const { habitTitle, habitDesc, habitDay } = req.body
-  const userId = req.user.userId;
   try {
     await Habit.create(
       {
         habitTitle,
         habitDesc,
         habitDay,
-        userId,
       }
     );
     res.send({ status: "ok", data: "habit created WELLDONE!" })
