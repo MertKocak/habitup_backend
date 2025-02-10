@@ -4,7 +4,7 @@ const HabitDetailSchema = new mongoose.Schema({
   habitTitle: String,
   habitDesc: String,
   habitDay: Number,
-  email: { type: mongoose.Schema.Types.ObjectId, ref: 'UserInfo' },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'UserInfo' },
 },
 {
     collection: "HabitInfo"

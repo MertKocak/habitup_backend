@@ -191,8 +191,21 @@ app.put('/habit/:id', async (req, res) => {
   }
 });
 
+const authenticateToken = (req, res, next) => {
+  const token1 = req.headers["authorization"];
+  
+  if (!token1) return res.status(401).json({ message: "Token eksik!" });
+
+  jwt.verify(token1, JWT_SECRET, (err, user1) => {
+    if (err) return res.status(403).json({ message: "Geçersiz token!" });
+
+    req.user1 = user1;
+    next();
+  });
+};
+
 //create habit
-app.post("/habit", async (req, res) => {
+app.post("/habit",authenticateToken, async (req, res) => {
   const { habitTitle, habitDesc, habitDay } = req.body
   try {
     await Habit.create(
@@ -200,7 +213,7 @@ app.post("/habit", async (req, res) => {
         habitTitle,
         habitDesc,
         habitDay,
-        userId: req.user.email
+        userId: req.user1.email
       }
     );
     res.send({ status: "ok", data: "habit created WELLDONE!" })
