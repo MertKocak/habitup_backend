@@ -146,10 +146,13 @@ app.post("/userdata", async (req, res) => {
 /**-------------------------------------------------- */
 
 
-//get all habits
-app.get('/habit', async (req, res) => {
-  const data = await Habit.find();
-  res.json(data);
+app.get("/habit", authenticateUser, async (req, res) => {
+  try {
+    const habits = await Habit.find({ userId: req.user.userId });
+    res.status(200).json(habits);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.get('/habit/:id', async (req, res) => {
