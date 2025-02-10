@@ -192,7 +192,7 @@ app.put('/habit/:id', async (req, res) => {
 });
 
 //create habit
-app.post("/habit", async (req, res) => {
+app.post("/habit", authenticateUser, async (req, res) => {
   const { habitTitle, habitDesc, habitDay } = req.body
   const userId = req.user.userId;
   try {
