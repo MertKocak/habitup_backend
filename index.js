@@ -152,10 +152,9 @@ app.get('/habit', async (req, res) => {
   res.json(data);
 });
 
-app.get('/habit/:id', async (req, res) => {
-  const { id } = req.params;
+app.get('/habit/:userId', async (req, res) => {
   try {
-    const habit = await Habit.findById(id);
+    const habit = await Habit.find({ userId: req.params.userId });
     if (!habit) {
       return res.status(404).json({ error: 'Habit not found' });
     }
