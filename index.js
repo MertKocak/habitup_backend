@@ -192,13 +192,14 @@ app.put('/habit/:id', async (req, res) => {
 
 //create habit
 app.post("/habit", async (req, res) => {
-  const { habitTitle, habitDesc, habitDay } = req.body
+  const { habitTitle, habitDesc, habitDay, userId  } = req.body
   try {
     await Habit.create(
       {
         habitTitle,
         habitDesc,
         habitDay,
+        userId,
       }
     );
     res.send({ status: "ok", data: "habit created WELLDONE!" })
