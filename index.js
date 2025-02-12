@@ -161,7 +161,7 @@ app.get('/habit/:id', async (req, res) => {
     let filter = { userId };
 
     if (habitIsDone !== undefined) {
-      filter.habitIsDone = habitIsDone === "false"; // String gelen veriyi Boolean'a çeviriyoruz
+      filter.habitIsDone = habitIsDone === "true" || habitIsDone === "false" ? JSON.parse(habitIsDone) : habitIsDone;
     }
 
     const habit = await Habit.find(filter);
