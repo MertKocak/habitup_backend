@@ -152,7 +152,7 @@ app.get('/habit', async (req, res) => {
   res.json(data);
 });
 
-app.get('/habit/:id', async (req, res) => {
+app.get('/habitDone/:id', async (req, res) => {
   
   const { userId, habitIsDone } = req.query;
 
@@ -174,7 +174,7 @@ app.get('/habit/:id', async (req, res) => {
   }
 });
 
-/* app.get('/habit/:id', async (req, res) => {
+app.get('/habitAll/:id', async (req, res) => {
   try {
     const habit = await Habit.find({ userId: req.params.id });
     if (!habit) {
@@ -184,7 +184,7 @@ app.get('/habit/:id', async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: 'Invalid habit ID' });
   }
-}); */
+});
 
 //update habit
 app.put('/habit/:id', async (req, res) => {
