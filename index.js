@@ -153,6 +153,28 @@ app.get('/habit', async (req, res) => {
 });
 
 app.get('/habit/:id', async (req, res) => {
+  
+  const { userId, habitIsDone } = req.query;
+
+  try {
+
+    let filter = { userId };
+
+    if (habitIsDone !== undefined) {
+      filter.habitIsDone = habitIsDone === "false"; // String gelen veriyi Boolean'a çeviriyoruz
+    }
+
+    const habit = await Habit.find(filter);
+    if (!habit) {
+      return res.status(404).json({ error: 'Habit not found' });
+    }
+    res.json(habit);
+  } catch (error) {
+    res.status(400).json({ error: 'Invalid habit ID' });
+  }
+});
+
+/* app.get('/habit/:id', async (req, res) => {
   try {
     const habit = await Habit.find({ userId: req.params.id });
     if (!habit) {
@@ -162,7 +184,7 @@ app.get('/habit/:id', async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: 'Invalid habit ID' });
   }
-});
+}); */
 
 //update habit
 app.put('/habit/:id', async (req, res) => {
