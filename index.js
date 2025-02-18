@@ -128,21 +128,25 @@ app.post("/userdata", async (req, res) => {
 app.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
+  console.log(email);
 
   if (!user) {
+    console.log("1");
     return res.status(404).json({ success: false, message: 'E-posta adresi bulunamadı.' });
   }
 
+  console.log("2");
   const token = crypto.randomBytes(32).toString('hex');
   user.resetPasswordToken = token;
   user.resetPasswordExpires = Date.now() + 3600000; // 1 saat geçerli
   await user.save();
+  console.log("3");
 
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
       user: 'mertkocak.2811@gmail.com',
-      pass: 'your-password',
+      pass: 'aSPiDiSTRa_!195',
     },
   });
 
