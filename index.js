@@ -164,7 +164,7 @@ app.post('/forgot-password', async (req, res) => {
 });
 
 // reset password
-app.post("/api/reset-password", async (req, res) => {
+app.post("/reset-password", async (req, res) => {
   const { token, password } = req.body;
 
   const user = await User.findOne({ resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } });
