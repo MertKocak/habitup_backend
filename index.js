@@ -163,6 +163,24 @@ app.post('/forgot-password', async (req, res) => {
   res.json({ success: true, message: 'Şifre sıfırlama e-postası gönderildi.' });
 });
 
+// reset password
+app.get("/reset-password/:token", async (req, res) => {
+  const { token } = req.params;
+  
+  // Token geçerli mi kontrol et
+  const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() } // Token süresi dolmamış mı?
+  });
+
+  if (!user) {
+      return res.status(400).json({ message: "Geçersiz veya süresi dolmuş token." });
+  }
+
+  res.json({ message: "Token geçerli, yeni şifrenizi belirleyebilirsiniz.", token });
+});
+
+
 
 /* app.post('/login', async (req, res) => {
   const { email, password } = req.body;
