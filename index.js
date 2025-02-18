@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const cors = require('cors');
 
 const { ObjectId } = mongoose.Types;
 
@@ -28,6 +29,11 @@ const Habit = mongoose.model("HabitInfo")
 require("./models/User");
 const User = mongoose.model("UserInfo")
 
+app.use(cors({
+  origin: 'http://localhost:3000', // Frontend'in adresi
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type'],
+}));
 
 //register user
 app.post('/register', async (req, res) => {
