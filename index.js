@@ -136,8 +136,8 @@ app.post('/forgot-password', async (req, res) => {
   }
 
   console.log("2");
-  const token = crypto.randomBytes(32).toString('hex');
-  user.resetPasswordToken = token;
+  const token1 = crypto.randomBytes(32).toString('hex');
+  user.resetPasswordToken = token1;
   user.resetPasswordExpires = Date.now() + 3600000; // 1 saat geçerli
   await user.save();
   console.log("3");
