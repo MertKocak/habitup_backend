@@ -155,7 +155,7 @@ app.post('/forgot-password', async (req, res) => {
     from: 'mertkocak.2811@gmail.com',
     subject: 'Şifre Sıfırlama',
     text: `Şifrenizi sıfırlamak için aşağıdaki linke tıklayın:\n\n
-    https://habitup-backend.onrender.com/reset-password/${token}\n\n
+    https://habitup-backend.onrender.com/reset-password/${token1}\n\n
     Bu bağlantı 1 saat sonra geçersiz olacaktır.`,
   };
 
