@@ -110,7 +110,6 @@ app.post('/login', async (req, res) => {
 });
 
 
-
 app.post("/userdata", async (req, res) => {
   const { token } = req.body;
   try {
@@ -125,6 +124,7 @@ app.post("/userdata", async (req, res) => {
   }
 });
 
+//password sıfırlama
 router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
@@ -141,17 +141,17 @@ router.post('/forgot-password', async (req, res) => {
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
-      user: 'your-email@gmail.com',
+      user: 'mertkocak.2811@gmail.com',
       pass: 'your-password',
     },
   });
 
   const mailOptions = {
     to: user.email,
-    from: 'your-email@gmail.com',
+    from: 'mertkocak.2811@gmail.com',
     subject: 'Şifre Sıfırlama',
-    text: `Şifreni sıfırlamak için aşağıdaki linke tıkla:\n\n
-    https://your-frontend.com/reset-password/${token}\n\n
+    text: `Şifrenizi sıfırlamak için aşağıdaki linke tıklayın:\n\n
+    https://habitup-backend.onrender.com/reset-password/${token}\n\n
     Bu bağlantı 1 saat sonra geçersiz olacaktır.`,
   };
 
