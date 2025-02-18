@@ -167,6 +167,8 @@ app.post('/forgot-password', async (req, res) => {
 app.post("/reset-password", async (req, res) => {
   const { token, password } = req.body;
 
+  console.log("BACKENDDEYİM.")
+
   const user = await User.findOne({ resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } });
   if (!user) {
       return res.status(400).json({ success: false, message: "Token geçersiz veya süresi dolmuş." });
