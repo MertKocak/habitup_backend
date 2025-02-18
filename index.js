@@ -164,20 +164,20 @@ app.post('/forgot-password', async (req, res) => {
 });
 
 // reset password
-app.get("/reset-password/:token", async (req, res) => {
-  const { token } = req.params;
-  
-  // Token geçerli mi kontrol et
-  const user = await User.findOne({
-      resetPasswordToken: token,
-      resetPasswordExpires: { $gt: Date.now() } // Token süresi dolmamış mı?
-  });
+app.post("/api/reset-password", async (req, res) => {
+  const { token, password } = req.body;
 
+  const user = await User.findOne({ resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } });
   if (!user) {
-      return res.status(400).json({ message: "Geçersiz veya süresi dolmuş token." });
+      return res.status(400).json({ success: false, message: "Token geçersiz veya süresi dolmuş." });
   }
 
-  res.json({ message: "Token geçerli, yeni şifrenizi belirleyebilirsiniz.", token });
+  user.password = await bcrypt.hash(password, 10);
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpires = undefined;
+  await user.save();
+
+  res.json({ success: true, message: "Şifreniz başarıyla değiştirildi." });
 });
 
 
