@@ -146,7 +146,7 @@ app.post('/forgot-password', async (req, res) => {
     service: 'Gmail',
     auth: {
       user: 'mertkocak.2811@gmail.com',
-      pass: 'aSPiDiSTRa_!195',
+      pass: 'tqut qezh cydc qfsb',
     },
   });
 
