@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 app.use(express.json());
 const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 
 const { ObjectId } = mongoose.Types;
 
@@ -121,6 +123,40 @@ app.post("/userdata", async (req, res) => {
   } catch (error) {
     return res.send({ error: error });
   }
+});
+
+router.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(404).json({ success: false, message: 'E-posta adresi bulunamadı.' });
+  }
+
+  const token = crypto.randomBytes(32).toString('hex');
+  user.resetPasswordToken = token;
+  user.resetPasswordExpires = Date.now() + 3600000; // 1 saat geçerli
+  await user.save();
+
+  const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+      user: 'your-email@gmail.com',
+      pass: 'your-password',
+    },
+  });
+
+  const mailOptions = {
+    to: user.email,
+    from: 'your-email@gmail.com',
+    subject: 'Şifre Sıfırlama',
+    text: `Şifreni sıfırlamak için aşağıdaki linke tıkla:\n\n
+    https://your-frontend.com/reset-password/${token}\n\n
+    Bu bağlantı 1 saat sonra geçersiz olacaktır.`,
+  };
+
+  await transporter.sendMail(mailOptions);
+  res.json({ success: true, message: 'Şifre sıfırlama e-postası gönderildi.' });
 });
 
 
