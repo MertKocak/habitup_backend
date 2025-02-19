@@ -147,7 +147,7 @@ app.post('/forgot-password', async (req, res) => {
   user.resetPasswordExpires = Date.now() + 3600000; // 1 saat geçerli
   await user.save();
 
-  const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
+  const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
 
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
@@ -162,7 +162,7 @@ app.post('/forgot-password', async (req, res) => {
     from: 'mertkocak.2811@gmail.com',
     subject: 'Şifre Sıfırlama',
     text: `Şifrenizi sıfırlamak için aşağıdaki linke tıklayın:\n\n
-    https://http://localhost:3000/reset-password/${token1}\n\n
+    ${resetLink}\n\n
     Bu bağlantı 1 saat sonra geçersiz olacaktır.`,
   };
 
