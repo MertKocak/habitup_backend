@@ -37,84 +37,62 @@ app.use(cors({
 
 //register user
 app.post('/register', async (req, res) => {
-  console.log("1")
   const { username, email, password } = req.body;
 
   // Eksik alan kontrolü
   if (!username || !email || !password) {
-    console.log("2")
+
     return res.status(400).json({ message: 'Lütfen tüm alanları doldurun!' });
   }
-
-  console.log("3")
-
   try {
-    console.log("4")
     // Kullanıcı zaten var mı kontrol et
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      console.log("5")
+  
       return res.status(400).json({ message: 'Bu e-posta zaten kayıtlı!' });
     }
-
-    console.log("6")
-
     // Yeni kullanıcı oluştur
     await User.create({
       username,
       email,
       password
     });
-
-    console.log("7")
-
     res.status(201).json({ message: 'Kayıt başarılı' });
   } catch (err) {
-    console.log("8")
+
     console.error(err);
     res.status(500).json({ error: 'Sunucu hatası oluştu!' });
   }
 });
-
-
 
 app.get('/login', async (req, res) => {
   const data = await User.find();
   res.json(data);
 });
 
-
 //login user
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
-
   try {
     const oldUser = await User.findOne({ email: email });
-
     if (!oldUser) {
       return res.status(404).send({ status: "userNotFound", error: "Kullanıcı bulunamadı!" });
     }
-
     const isPasswordValid = await bcrypt.compare(password, oldUser.password);
-
     if (!isPasswordValid) {
       return res.status(401).send({ status: "userNotFound", error: "Hatalı şifre!" });
     }
-
     const token = jwt.sign({ email: oldUser.email }, JWT_SECRET);
-
     return res.status(200).send({
       status: "ok",
       data: token,
       userType: oldUser.userType,
     });
-
   } catch (error) {
     console.error("Sunucu hatası:", error);
     return res.status(500).send({ status: "error", error: "Sunucu hatası oluştu!" });
   }
 });
-
 
 app.post("/userdata", async (req, res) => {
   const { token } = req.body;
@@ -130,11 +108,10 @@ app.post("/userdata", async (req, res) => {
   }
 });
 
-//password sıfırlama
+//password sıfırlama maili
 app.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
-  console.log(email);
 
   if (!user) {
     console.log("1");
@@ -160,9 +137,9 @@ app.post('/forgot-password', async (req, res) => {
   const mailOptions = {
     to: user.email,
     from: 'mertkocak.2811@gmail.com',
-    subject: 'Şifre Sıfırlama',
-    text: `Şifrenizi sıfırlamak için aşağıdaki linke tıklayın:\n\n
-    ${resetLink}\n\n
+    subject: 'HabitUp - Şifre Sıfırlama',
+    text: `Şifrenizi sıfırlamak için aşağıdaki linke tıklayın:\n
+    ${resetLink}\n
     Bu bağlantı 1 saat sonra geçersiz olacaktır.`,
   };
 
