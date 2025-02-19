@@ -72,8 +72,10 @@ app.get('/login', async (req, res) => {
 
 //login user
 app.post('/login', async (req, res) => {
+  console.log("GELDİM")
   const { email, password } = req.body;
   try {
+    console.log("GİRDİM")
     const oldUser = await User.findOne({ email: email });
     if (!oldUser) {
       return res.status(404).send({ status: "userNotFound", error: "Kullanıcı bulunamadı!" });
