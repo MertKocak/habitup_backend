@@ -190,23 +190,33 @@ app.post("/reset-password", async (req, res) => {
   }
 
   const userId = user._id;
+  console.log(userId)
   const username = user.username;
+  console.log(username)
   const email = user.email;
+  console.log(email)
   const resetPasswordToken = user.resetPasswordToken;
+  console.log(resetPasswordToken)
   const resetPasswordExpires = user.resetPasswordExpires;
+  console.log(resetPasswordExpires)
 
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        username,
+        email,
+        password,
+        resetPasswordToken,
+        resetPasswordExpires,
+      },
+      { new: true, runValidators: true }
 
-  const updatedUser = await User.findByIdAndUpdate(
-    userId,
-    {
-      username,
-      email,
-      password,
-      resetPasswordToken,
-      resetPasswordExpires,
-    },
-    { new: true, runValidators: true }
-  );
+      res.status(200).json(updatedHabit);
+    );
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 
   // Yeni şifreyi hashleyerek kaydet
   user.password = await bcrypt.hash(password, 10);
