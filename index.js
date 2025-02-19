@@ -211,9 +211,8 @@ app.post("/reset-password", async (req, res) => {
         resetPasswordExpires,
       },
       { new: true, runValidators: true }
-
-      res.status(200).json(updatedHabit);
     );
+      res.status(200).json(updatedHabit);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
