@@ -172,52 +172,40 @@ app.post('/forgot-password', async (req, res) => {
 
 // reset password
 app.post("/reset-password", async (req, res) => {
-  console.log("içeri girdim")
+  console.log("içeri girdim");
+
   const { token, password } = req.body;
 
-  console.log(token)
-  console.log(password)
+  console.log(token);
+  console.log(password);
 
+  // Token ile kullanıcıyı bul
   const user = await User.findOne({
     resetPasswordToken: token,
     resetPasswordExpires: { $gt: Date.now() }, // Token süresi geçmemiş olmalı
   });
 
-  console.log(user.email)
-
   if (!user) {
     return res.status(400).json({ success: false, message: "Geçersiz veya süresi dolmuş token." });
   }
 
-  const userId = user._id;
-  console.log(userId)
-  const username = user.username;
-  console.log(username)
-  const email = user.email;
-  console.log(email)
-  const resetPasswordToken = user.resetPasswordToken;
-  console.log(resetPasswordToken)
-  const resetPasswordExpires = user.resetPasswordExpires;
-  console.log(resetPasswordExpires)
+  // Kullanıcının şifresini güncellemeden önce yeni şifreyi hashleyelim
+  const hashedPassword = await bcrypt.hash(password, 10); // bcrypt ile şifreyi hashle
 
   try {
+    // Şifreyi güncellemek için kullanıcıyı bulup sadece şifreyi değiştiriyoruz
     const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      {
-        username,
-        email,
-        password,
-        resetPasswordToken,
-        resetPasswordExpires,
-      },
+      user._id, // Kullanıcıyı ID ile bul
+      { password: hashedPassword }, // Sadece şifreyi güncelle
       { new: true, runValidators: true }
     );
-      res.status(200).json(updatedHabit);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
 
-  res.json({ success: true, message: "Şifreniz başarıyla güncellendi. Şimdi giriş yapabilirsiniz." });
+    // Güncellenmiş kullanıcıyı döndür
+    res.status(200).json({ success: true, message: "Şifreniz başarıyla güncellendi. Şimdi giriş yapabilirsiniz." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
 });
 
 
