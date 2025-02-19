@@ -141,13 +141,15 @@ app.post('/forgot-password', async (req, res) => {
     return res.status(404).json({ success: false, message: 'E-posta adresi bulunamadı.' });
   }
 
+  const baseUrl = process.env.BASE_URL;
+
   // Şifre sıfırlama tokeni oluştur
   const resetToken = crypto.randomBytes(32).toString('hex');
   user.resetPasswordToken = resetToken;
   user.resetPasswordExpires = Date.now() + 3600000; // 1 saat geçerli
   await user.save();
 
-  const resetLink = `http://localhost:3000/reset-password?token=${resetToken}`;
+  const resetLink = `${baseUrl}/reset-password?token=${resetToken}`;
 
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
