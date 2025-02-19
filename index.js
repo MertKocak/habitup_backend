@@ -172,16 +172,41 @@ app.post('/forgot-password', async (req, res) => {
 
 // reset password
 app.post("/reset-password", async (req, res) => {
+  console.log("içeri girdim")
   const { token, password } = req.body;
+
+  console.log(token)
+  console.log(password)
 
   const user = await User.findOne({
     resetPasswordToken: token,
     resetPasswordExpires: { $gt: Date.now() }, // Token süresi geçmemiş olmalı
   });
 
+  console.log(user.email)
+
   if (!user) {
     return res.status(400).json({ success: false, message: "Geçersiz veya süresi dolmuş token." });
   }
+
+  const userId = user._id;
+  const username = user.username;
+  const email = user.email;
+  const resetPasswordToken = user.resetPasswordToken;
+  const resetPasswordExpires = user.resetPasswordExpires;
+
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    {
+      username,
+      email,
+      password,
+      resetPasswordToken,
+      resetPasswordExpires,
+    },
+    { new: true, runValidators: true }
+  );
 
   // Yeni şifreyi hashleyerek kaydet
   user.password = await bcrypt.hash(password, 10);
