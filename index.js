@@ -30,7 +30,7 @@ require("./models/User");
 const User = mongoose.model("UserInfo")
 
 app.use(cors({
-  origin: 'http://localhost:3000', // Frontend'in adresi
+  origin: 'https://habitup-resert-password.onrender.com', // Frontend'in adresi
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'],
 }));
