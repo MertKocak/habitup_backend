@@ -141,12 +141,13 @@ app.post('/forgot-password', async (req, res) => {
     return res.status(404).json({ success: false, message: 'E-posta adresi bulunamadı.' });
   }
 
-  console.log("2");
-  const token1 = crypto.randomBytes(32).toString('hex');
-  user.resetPasswordToken = token1;
+  // Şifre sıfırlama tokeni oluştur
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  user.resetPasswordToken = resetToken;
   user.resetPasswordExpires = Date.now() + 3600000; // 1 saat geçerli
   await user.save();
-  console.log("3");
+
+  const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
 
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
@@ -170,22 +171,26 @@ app.post('/forgot-password', async (req, res) => {
 });
 
 // reset password
-app.post("/reset-password", async (req, res) => {
-  const { token, password } = req.body;
+app.post('/reset-password/:token', async (req, res) => {
+  const { token } = req.params;
+  const { newPassword } = req.body;
 
-  console.log("BACKENDDEYİM.")
+  const user = await User.findOne({
+    resetPasswordToken: token,
+    resetPasswordExpires: { $gt: Date.now() },
+  });
 
-  const user = await User.findOne({ resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } });
   if (!user) {
-      return res.status(400).json({ success: false, message: "Token geçersiz veya süresi dolmuş." });
+    return res.status(400).json({ success: false, message: 'Geçersiz veya süresi dolmuş token.' });
   }
 
-  user.password = await bcrypt.hash(password, 10);
+  // Yeni şifreyi hashle ve kaydet
+  user.password = await bcrypt.hash(newPassword, 10);
   user.resetPasswordToken = undefined;
   user.resetPasswordExpires = undefined;
   await user.save();
 
-  res.json({ success: true, message: "Şifreniz başarıyla değiştirildi." });
+  res.json({ success: true, message: 'Şifren başarıyla sıfırlandı.' });
 });
 
 
@@ -219,7 +224,7 @@ app.get('/habit', async (req, res) => {
 });
 
 app.get('/habitDone/:id', async (req, res) => {
-  
+
   const { userId, habitIsDone } = req.query;
 
   try {
@@ -290,7 +295,7 @@ app.post("/habit", async (req, res) => {
         habitDay,
         habitIsDone,
         userId,
-        
+
       }
     );
     res.send({ status: "ok", data: "habit created WELLDONE!" })
