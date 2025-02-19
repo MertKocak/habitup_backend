@@ -217,12 +217,6 @@ app.post("/reset-password", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 
-  // Yeni şifreyi hashleyerek kaydet
-  user.password = await bcrypt.hash(password, 10);
-  user.resetPasswordToken = undefined;
-  user.resetPasswordExpires = undefined;
-  await user.save();
-
   res.json({ success: true, message: "Şifreniz başarıyla güncellendi. Şimdi giriş yapabilirsiniz." });
 });
 
